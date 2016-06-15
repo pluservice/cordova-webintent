@@ -1,5 +1,11 @@
 #import <Cordova/CDV.h>
 
+#ifdef DEBUG
+#   define WILog(...) NSLog(__VA_ARGS__)
+#else
+#   define WILog(...)
+#endif
+
 @interface WebIntent : CDVPlugin
 
 - (void)startActivity:(CDVInvokedUrlCommand*)command;
