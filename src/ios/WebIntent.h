@@ -15,4 +15,13 @@
 - (void)onNewIntent:(CDVInvokedUrlCommand*)command;
 - (void)sendBroadcast:(CDVInvokedUrlCommand*)command;
 
+- (BOOL)handleUrl:(NSURL* _Nonnull)url;
+- (BOOL)handleContinueUserActivity:(NSUserActivity* _Nonnull)userActivity;
+
+@end
+
+@interface NSURL (Stringify)
+
+- (NSString*)stringify;
+
 @end

@@ -4,6 +4,9 @@
 
 NSString * const kWebIntentLoggerTag = @"[WebIntent]";
 NSString * onOpenUrlCallbackId = nil;
+NSURL * pendingUrl = nil;
+
+#pragma mark - Plugin lifecycle
 
 - (void)pluginInitialize
 {
@@ -23,7 +26,12 @@ NSString * onOpenUrlCallbackId = nil;
     WILog(@"%@[pluginInitialize]", kWebIntentLoggerTag);
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+
+    onOpenUrlCallbackId = nil;
+    pendingUrl = nil;
 }
+
+#pragma mark - Plugin commands
 
 - (void)startActivity:(CDVInvokedUrlCommand*)command
 {
@@ -59,7 +67,12 @@ NSString * onOpenUrlCallbackId = nil;
 {
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* pluginResult = nil;
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
+
+        // if (pendingUrl != nil) pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[pendingUrl stringify]];
+        // else pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
         WILog(@"%@[getUri] sending plugin result for command: %@", kWebIntentLoggerTag, pluginResult.description);
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -85,6 +98,10 @@ NSString * onOpenUrlCallbackId = nil;
 
         WILog(@"%@[onNewIntent] sending plugin result for command: %@", kWebIntentLoggerTag, pluginResult.description);
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+        [self.commandDelegate runInBackground:^{
+            if (pendingUrl != nil) [self handleUrl:pendingUrl];
+        }];
     }];
 }
 
@@ -98,33 +115,53 @@ NSString * onOpenUrlCallbackId = nil;
     }];
 }
 
-- (void)handleOpenURL:(NSNotification *)notification
+#pragma mark - Helpers
+
+- (BOOL)handleUrl:(NSURL* _Nonnull)url
 {
-    WILog(@"%@[handleOpenURL] with notification: %@", kWebIntentLoggerTag, notification.description);
-    NSURL* url = [notification object];
+    // In case js didn't register to onNewIntent handler yet, we store url for later use...
+    if (onOpenUrlCallbackId == nil || [onOpenUrlCallbackId length] < 1) {
+
+        WILog(@"%@[sendUrlToJs] no callback registered, storing url...", kWebIntentLoggerTag);
+        pendingUrl = url;
+        return YES;
+    }
+
+    // awesome, we have a callback to launch!
+
     CDVPluginResult *pluginResult = nil;
 
-    if ([url isKindOfClass:[NSURL class]]) {
-        if (onOpenUrlCallbackId != nil && [onOpenUrlCallbackId length] > 0) {
-            // awesome, we have a callback to launch!
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[url stringify]];
+    pluginResult.keepCallback = @YES;
 
-            NSString *fullUrl = [NSString stringWithFormat:@"%@:%@", url.scheme, url.resourceSpecifier];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:fullUrl];
-            pluginResult.keepCallback = @YES;
-            WILog(@"%@[handleOpenURL] sending OK plugin result for event: %@", kWebIntentLoggerTag, pluginResult.description);
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:onOpenUrlCallbackId];
-        }
-        else WILog(@"%@[handleOpenURL] no callback registered", kWebIntentLoggerTag);
-    }
-    else WILog(@"%@[handleOpenURL] received something else than an URL", kWebIntentLoggerTag);
+    WILog(@"%@[sendUrlToJs] sending OK plugin result for event: %@", kWebIntentLoggerTag, pluginResult.description);
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:onOpenUrlCallbackId];
+    return YES;
 }
 
-- (void)onResume {
+- (BOOL)handleContinueUserActivity:(NSUserActivity* _Nonnull)userActivity {
+    return YES;
+}
+
+#pragma mark - Application lifecycle event handlers
+
+- (void)onResume
+{
     WILog(@"%@[onResume]", kWebIntentLoggerTag);
 }
 
-- (void)onPause {
+- (void)onPause
+{
     WILog(@"%@[onPause]", kWebIntentLoggerTag);
+    pendingUrl = nil;
+}
+
+@end
+
+@implementation NSURL (Stringify)
+
+- (NSString*)stringify {
+    return [NSString stringWithFormat:@"%@:%@", self.scheme, self.resourceSpecifier];
 }
 
 @end
