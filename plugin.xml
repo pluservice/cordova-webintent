@@ -27,6 +27,8 @@
     </config-file>
     <header-file src="src/ios/WebIntent.h" />
     <source-file src="src/ios/WebIntent.m" />
+    <header-file src="src/ios/AppDelegate+WebIntents.h" />
+    <source-file src="src/ios/AppDelegate+WebIntents.m" />
   </platform>
 
 </plugin>
