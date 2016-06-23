@@ -68,10 +68,8 @@ NSURL * pendingUrl = nil;
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* pluginResult = nil;
 
-        // if (pendingUrl != nil) pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[pendingUrl stringify]];
-        // else pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        if (pendingUrl != nil) pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[pendingUrl stringify]];
+        else pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
 
         WILog(@"%@[getUri] sending plugin result for command: %@", kWebIntentLoggerTag, pluginResult.description);
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -98,10 +96,6 @@ NSURL * pendingUrl = nil;
 
         WILog(@"%@[onNewIntent] sending plugin result for command: %@", kWebIntentLoggerTag, pluginResult.description);
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-
-        [self.commandDelegate runInBackground:^{
-            if (pendingUrl != nil) [self handleUrl:pendingUrl];
-        }];
     }];
 }
 
@@ -119,11 +113,12 @@ NSURL * pendingUrl = nil;
 
 - (BOOL)handleUrl:(NSURL* _Nonnull)url
 {
+    pendingUrl = url;
+
     // In case js didn't register to onNewIntent handler yet, we store url for later use...
     if (onOpenUrlCallbackId == nil || [onOpenUrlCallbackId length] < 1) {
 
         WILog(@"%@[sendUrlToJs] no callback registered, storing url...", kWebIntentLoggerTag);
-        pendingUrl = url;
         return YES;
     }
 
