@@ -37,8 +37,7 @@ public class WebIntent extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
         try {
             // this var was used to be initialized only within "onNewIntent" action so intents weren't propagated correctly in some cases.
-            onNewIntentCallbackContext = callbackContext;
-
+            
             if (action.equals("startActivity")) {
                 if (args.length() != 1) {
                     //return new PluginResult(PluginResult.Status.INVALID_ACTION);

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="com.borismus.webintent" version="1.0.1" xmlns="http://cordova.apache.org/ns/plugins/1.0">
+<plugin id="com.borismus.webintent" version="1.0.2" xmlns="http://cordova.apache.org/ns/plugins/1.0">
 
   <name>WebIntent</name>
   <description>Web intents for Cordova</description>
