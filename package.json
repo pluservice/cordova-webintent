@@ -1,0 +1,29 @@
+{
+  "name": "com.borismus.webintent",
+  "version": "1.0.4",
+  "description": "Web intents for Cordova",
+  "cordova": {
+    "id": "com.borismus.webintent",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pluservice/cordova-webintent.git"
+  },
+  "keywords": [
+    "cordova",
+    "webintent",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pluservice/cordova-webintent/issues"
+  },
+  "homepage": "https://github.com/pluservice/cordova-webintent#readme"
+}
