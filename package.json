@@ -1,6 +1,6 @@
 {
   "name": "com.borismus.webintent",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Web intents for Cordova",
   "cordova": {
     "id": "com.borismus.webintent",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pluservice/cordova-webintent.git"
+    "url": "git+https://github.com/pluservice/cordova-webintent.git"
   },
   "keywords": [
     "cordova",
