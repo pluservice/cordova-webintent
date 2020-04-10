@@ -151,6 +151,11 @@ NSURL * pendingUrl = nil;
     pendingUrl = nil;
 }
 
+- (void)handleOpenURL:(NSNotification *)notification{
+    NSURL* url = notification.object;
+    [self handleUrl:url];
+}
+
 @end
 
 @implementation NSURL (Stringify)
